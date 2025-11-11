@@ -3,9 +3,9 @@ import {
   monochromePalette,
   packages,
   trendingShows,
-} from "./data/data";
+} from "../data/data";
 
-function App() {
+function HomePage() {
   return (
     <main class="min-h-screen bg-[#202020] text-white antialiased">
       <div class="mx-auto flex max-w-6xl flex-col gap-16 px-6 py-12 lg:py-16">
@@ -236,4 +236,4 @@ function App() {
   );
 }
 
-export default App;
+export default HomePage;
