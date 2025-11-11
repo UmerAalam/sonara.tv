@@ -1,22 +1,21 @@
-import { Link } from '@tanstack/solid-router'
+import { Link } from "@tanstack/solid-router";
 
-import { createSignal } from 'solid-js'
-import {
-  ChevronDown,
-  ChevronRight,
-  Globe,
-  Home,
-  House,
-  Layers,
-  Menu,
-  X,
-} from 'lucide-solid'
+import { createSignal } from "solid-js";
+
+import Home from "lucide-solid/icons/home";
+import ChevronDown from "lucide-solid/icons/chevron-down";
+import ChevronRight from "lucide-solid/icons/chevron-right";
+import Globe from "lucide-solid/icons/globe";
+import House from "lucide-solid/icons/house";
+import Layers from "lucide-solid/icons/layers";
+import Menu from "lucide-solid/icons/menu";
+import X from "lucide-solid/icons/x";
 
 export default function Header() {
-  const [isOpen, setIsOpen] = createSignal(false)
+  const [isOpen, setIsOpen] = createSignal(false);
   const [groupedExpanded, setGroupedExpanded] = createSignal<
     Record<string, boolean>
-  >({})
+  >({});
 
   return (
     <>
@@ -41,7 +40,7 @@ export default function Header() {
 
       <aside
         class={`fixed top-0 left-0 h-full w-80 bg-gray-900 text-white shadow-2xl z-50 transform transition-transform duration-300 ease-in-out flex flex-col ${
-          isOpen() ? 'translate-x-0' : '-translate-x-full'
+          isOpen() ? "translate-x-0" : "-translate-x-full"
         }`}
       >
         <div class="flex items-center justify-between p-4 border-b border-gray-700">
@@ -62,31 +61,14 @@ export default function Header() {
             class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-800 transition-colors mb-2"
             activeProps={{
               class:
-                'flex items-center gap-3 p-3 rounded-lg bg-cyan-600 hover:bg-cyan-700 transition-colors mb-2',
+                "flex items-center gap-3 p-3 rounded-lg bg-cyan-600 hover:bg-cyan-700 transition-colors mb-2",
             }}
           >
             <Home size={20} />
             <span class="font-medium">Home</span>
           </Link>
-
-          {/* Demo Links Start */}
-
-          <Link
-            to="/demo/start/server-funcs"
-            onClick={() => setIsOpen(false)}
-            class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-800 transition-colors mb-2"
-            activeProps={{
-              class:
-                'flex items-center gap-3 p-3 rounded-lg bg-cyan-600 hover:bg-cyan-700 transition-colors mb-2',
-            }}
-          >
-            <Globe size={20} />
-            <span class="font-medium">Start - Server Functions</span>
-          </Link>
-
-          {/* Demo Links End */}
         </nav>
       </aside>
     </>
-  )
+  );
 }
