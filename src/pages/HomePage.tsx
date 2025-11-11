@@ -4,8 +4,12 @@ import {
   packages,
   trendingShows,
 } from "../data/data";
+import pakistani from "../streams/pk.m3u?raw";
+import { parseM3u } from "../data/parse-m3u"; // the parser we wrote earlier
 
 function HomePage() {
+  const channels = parseM3u(pakistani);
+  console.log(channels);
   return (
     <main class="min-h-screen bg-[#202020] text-white antialiased">
       <div class="mx-auto flex max-w-6xl flex-col gap-16 px-6 py-12 lg:py-16">
