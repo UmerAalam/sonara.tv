@@ -1,4 +1,4 @@
-import type { JSX } from "solid-js";
+import { createMemo, createSignal, type JSX } from "solid-js";
 import type { Channel } from "../data/parse-m3u";
 import { resolveCountry } from "../data/streaming-grid";
 
@@ -9,21 +9,49 @@ interface ChannelAtlasProps {
 }
 
 function ChannelAtlas(props: ChannelAtlasProps): JSX.Element {
+  const [searchTerm, setSearchTerm] = createSignal("");
+
+  const channels = createMemo(() => {
+    const allChannels =
+      typeof props.channels === "function" ? props.channels : props.channels;
+    const term = searchTerm().toLowerCase();
+    if (!term) return allChannels;
+    return allChannels.filter((channel) =>
+      channel.name.toLowerCase().includes(term),
+    );
+  });
+
+  const onSearch = (e: InputEvent) => {
+    const value = (e.target as HTMLInputElement).value;
+    setSearchTerm(value);
+  };
+
   return (
     <div class="space-y-5 rounded-3xl border border-white/10 bg-[#0f0f0f]/80 p-6 backdrop-blur">
       <div class="flex flex-col gap-3">
         <p class="text-xs font-semibold uppercase tracking-[0.4em] text-white/50">
           Channel atlas
         </p>
-        <div class="flex items-center justify-between">
-          <h3 class="text-2xl font-bold">Country-guided feeds</h3>
-          <span class="text-xs font-semibold uppercase tracking-[0.3em] text-white/50">
-            {props.channels.length} live
-          </span>
+      </div>
+      <div class="flex items-center justify-between">
+        <div class="flex w-full items-center gap-3 rounded-2xl border px-4 py-3 transition border-white/10 bg-black/30 hover:border-white/40">
+          <input
+            type="text"
+            placeholder="Search channels..."
+            class="w-full bg-transparent text-white placeholder-white/40 focus:outline-none"
+            onInput={(e) => onSearch(e)}
+          />
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-5 w-5 text-white/60"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          ></svg>
         </div>
       </div>
       <div class="space-y-3">
-        {props.channels.map((channel, index) => {
+        {channels().map((channel, index) => {
           const origin = resolveCountry(channel);
           const isActive = props.activeIndex === index;
           return (

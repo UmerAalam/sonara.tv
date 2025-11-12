@@ -1,5 +1,5 @@
 import pakistani from "../streams/pk.m3u?raw";
-import { Channel, parseM3u } from "./parse-m3u";
+import { type Channel, parseM3u } from "./parse-m3u";
 
 export interface ChannelOrigin {
   code: string;
@@ -21,7 +21,7 @@ export const COUNTRY_LABELS: Record<string, string> = {
 };
 
 export const streamingChannels = parseM3u(pakistani);
-export const curatedStreamingChannels = streamingChannels.slice(0, 14);
+export const curatedStreamingChannels = streamingChannels;
 
 export const monitorMetrics = [
   { label: "Bitrate shield", value: "Adaptive" },
