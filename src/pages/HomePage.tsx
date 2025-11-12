@@ -1,22 +1,33 @@
+import { createMemo, createSignal } from "solid-js";
+import ChannelAtlas from "../components/ChannelAtlas";
+import StreamingMonitor from "../components/StreamingMonitor";
 import {
   featuredChannels,
   monochromePalette,
   packages,
   trendingShows,
 } from "../data/data";
-import pakistani from "../streams/pk.m3u?raw";
-import { parseM3u } from "../data/parse-m3u"; // the parser we wrote earlier
+import {
+  curatedStreamingChannels,
+  monitorMetrics,
+  resolveCountry,
+} from "../data/streaming-grid";
 
 function HomePage() {
-  const channels = parseM3u(pakistani);
-  console.log(channels);
+  const channelList = curatedStreamingChannels;
+  const [activeChannelIndex, setActiveChannelIndex] = createSignal(0);
+  const activeChannel = createMemo(
+    () => channelList[activeChannelIndex()] ?? channelList[0],
+  );
+  const playingOrigin = createMemo(() => resolveCountry(activeChannel()));
+
   return (
     <main class="min-h-screen bg-[#202020] text-white antialiased">
       <div class="mx-auto flex max-w-6xl flex-col gap-16 px-6 py-12 lg:py-16">
         <header class="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
           <div class="space-y-2">
             <p class="text-xs font-semibold uppercase tracking-[0.6em] text-[#ccff33]">
-              IPTV_APP
+              SONARA
             </p>
             <h1 class="text-3xl font-bold tracking-tight text-white sm:text-4xl">
               Fluid streaming for bold screens
@@ -119,6 +130,19 @@ function HomePage() {
               channels without losing the stream.
             </div>
           </div>
+        </section>
+
+        <section class="grid gap-8 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,0.65fr)]">
+          <StreamingMonitor
+            channel={activeChannel()}
+            origin={playingOrigin()}
+            metrics={monitorMetrics}
+          />
+          <ChannelAtlas
+            channels={channelList}
+            activeIndex={activeChannelIndex()}
+            onSelect={setActiveChannelIndex}
+          />
         </section>
 
         <section class="space-y-6">
