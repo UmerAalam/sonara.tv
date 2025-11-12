@@ -1,17 +1,13 @@
 import { createMemo, createSignal } from "solid-js";
 import ChannelAtlas from "../components/ChannelAtlas";
 import StreamingMonitor from "../components/StreamingMonitor";
-import {
-  featuredChannels,
-  monochromePalette,
-  packages,
-  trendingShows,
-} from "../data/data";
+import { featuredChannels, packages, trendingShows } from "../data/data";
 import {
   curatedStreamingChannels,
   monitorMetrics,
   resolveCountry,
 } from "../data/streaming-grid";
+import Footer from "../components/Footer";
 
 function HomePage() {
   const channelList = curatedStreamingChannels;
@@ -24,30 +20,6 @@ function HomePage() {
   return (
     <main class="min-h-screen bg-[#202020] text-white antialiased">
       <div class="mx-auto flex max-w-6xl flex-col gap-16 px-6 py-12 lg:py-16">
-        <header class="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
-          <div class="space-y-2">
-            <p class="text-xs font-semibold uppercase tracking-[0.6em] text-[#ccff33]">
-              SONARA
-            </p>
-            <h1 class="text-3xl font-bold tracking-tight text-white sm:text-4xl">
-              Fluid streaming for bold screens
-            </h1>
-            <p class="max-w-2xl text-sm font-medium text-white/70">
-              Live television, on-demand archives, and monochrome aesthetics
-              engineered for viewers who want a premium IPTV experience across
-              every device.
-            </p>
-          </div>
-          <div class="flex gap-3">
-            <button class="rounded-full border border-white/20 px-4 py-2 text-sm font-semibold uppercase tracking-wide text-white transition hover:border-white hover:text-white/80">
-              Schedule
-            </button>
-            <button class="rounded-full bg-[#ccff33] px-4 py-2 text-sm font-semibold uppercase tracking-wide text-[#111] transition hover:bg-[#dfff4d]">
-              Start free preview
-            </button>
-          </div>
-        </header>
-
         <section class="grid gap-10 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,0.8fr)]">
           <div class="relative overflow-hidden rounded-3xl border border-white/10 bg-linear-to-br from-[#2a2a2a] via-[#161616] to-[#070707] p-8">
             <div class="absolute left-20 top-10 h-64 w-64 rounded-full bg-[#ccff33]/10 blur-3xl" />
@@ -223,42 +195,7 @@ function HomePage() {
             ))}
           </div>
         </section>
-
-        <section class="space-y-6">
-          <div>
-            <p class="text-xs font-semibold uppercase tracking-[0.4em] text-white/50">
-              Palette
-            </p>
-            <h3 class="text-2xl font-bold">Monochrome support cast</h3>
-          </div>
-          <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-            {monochromePalette.map((tone) => (
-              <div
-                class="rounded-3xl border border-white/10 p-4 text-center"
-                style={{ background: tone.value }}
-              >
-                <p class="text-xs font-semibold uppercase tracking-[0.3em] text-white/60">
-                  {tone.label}
-                </p>
-                <p class="mt-3 text-lg font-bold">{tone.value}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <footer class="flex flex-col gap-4 border-t border-white/5 pt-8 text-sm font-semibold text-white/50 sm:flex-row sm:items-center sm:justify-between">
-          <p>
-            © {new Date().getFullYear()} IPTV_APP. Engineered on TanStack +
-            Solid.
-          </p>
-          <div class="flex gap-4 text-xs uppercase tracking-[0.3em]">
-            <button class="text-white/60 hover:text-white">Status</button>
-            <button class="text-white/60 hover:text-white">Support</button>
-            <button class="text-white/60 hover:text-white">
-              Download apps
-            </button>
-          </div>
-        </footer>
+        <Footer />
       </div>
     </main>
   );
