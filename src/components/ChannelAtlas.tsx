@@ -22,10 +22,6 @@ function ChannelAtlas(props: ChannelAtlasProps): JSX.Element {
           </span>
         </div>
       </div>
-      <div class="rounded-2xl border border-dashed border-white/15 px-4 py-3 text-sm font-semibold text-white/60">
-        Tap a channel to instantly swap the preview window without losing the
-        soundstage.
-      </div>
       <div class="space-y-3">
         {props.channels.map((channel, index) => {
           const origin = resolveCountry(channel);
@@ -33,7 +29,7 @@ function ChannelAtlas(props: ChannelAtlasProps): JSX.Element {
           return (
             <button
               type="button"
-              class={`flex w-full items-center justify-between gap-4 rounded-2xl border px-4 py-3 text-left transition ${
+              class={`flex cursor-pointer w-full items-center justify-between gap-4 rounded-2xl border px-4 py-3 text-left transition ${
                 isActive
                   ? "border-[#ccff33]/80 bg-white/10"
                   : "border-white/10 bg-black/30 hover:border-white/40"
@@ -42,7 +38,9 @@ function ChannelAtlas(props: ChannelAtlasProps): JSX.Element {
               onClick={() => props.onSelect(index)}
             >
               <div>
-                <p class="text-base font-bold text-white">{channel.name}</p>
+                <p class="text-base font-bold text-white">
+                  {channel.name.replace(/\s*(\([^)]*\)|\[[^\]]*\])\s*/g, "")}
+                </p>
                 <p class="text-[10px] font-semibold uppercase tracking-[0.4em] text-white/40">
                   {channel.attributes["group-title"] ?? "General"}
                 </p>
