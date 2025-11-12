@@ -21,6 +21,7 @@ function RootComponent() {
   return (
     <html>
       <head>
+        <title>SONARA.tv</title>
         <HeadContent />
         <HydrationScript />
       </head>

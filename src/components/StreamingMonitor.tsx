@@ -56,7 +56,7 @@ function StreamingMonitor(props: StreamingMonitorProps): JSX.Element {
               <video
                 class="aspect-video w-full bg-black object-cover"
                 controls
-                playsInline
+                playsinline
                 preload="none"
                 src={props.channel.url}
               />
