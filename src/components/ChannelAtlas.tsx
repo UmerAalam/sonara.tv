@@ -10,6 +10,7 @@ interface ChannelAtlasProps {
 
 function ChannelAtlas(props: ChannelAtlasProps): JSX.Element {
   const [searchTerm, setSearchTerm] = createSignal("");
+  const [channelsCount, setChannelsCount] = createSignal(6);
 
   const channels = createMemo(() => {
     const allChannels =
@@ -51,37 +52,45 @@ function ChannelAtlas(props: ChannelAtlasProps): JSX.Element {
         </div>
       </div>
       <div class="space-y-3">
-        {channels().map((channel, index) => {
-          const origin = resolveCountry(channel);
-          const isActive = props.activeIndex === index;
-          return (
-            <button
-              type="button"
-              class={`flex cursor-pointer w-full items-center justify-between gap-4 rounded-2xl border px-4 py-3 text-left transition ${
-                isActive
-                  ? "border-[#ccff33]/80 bg-white/10"
-                  : "border-white/10 bg-black/30 hover:border-white/40"
-              }`}
-              aria-pressed={isActive}
-              onClick={() => props.onSelect(index)}
-            >
-              <div>
-                <p class="text-base font-bold text-white">
-                  {channel.name.replace(/\s*(\([^)]*\)|\[[^\]]*\])\s*/g, "")}
-                </p>
-                <p class="text-[10px] font-semibold uppercase tracking-[0.4em] text-white/40">
-                  {channel.attributes["group-title"] ?? "General"}
-                </p>
-              </div>
-              <div class="text-right">
-                <p class="text-sm font-bold text-[#ccff33]">{origin.label}</p>
-                <p class="text-[11px] font-semibold uppercase tracking-[0.4em] text-white/50">
-                  {origin.code}
-                </p>
-              </div>
-            </button>
-          );
-        })}
+        {channels()
+          .slice(0, channelsCount())
+          .map((channel, index) => {
+            const origin = resolveCountry(channel);
+            const isActive = props.activeIndex === index;
+            return (
+              <button
+                type="button"
+                class={`flex cursor-pointer w-full items-center justify-between gap-4 rounded-2xl border px-4 py-3 text-left transition ${
+                  isActive
+                    ? "border-[#ccff33]/80 bg-white/10"
+                    : "border-white/10 bg-black/30 hover:border-white/40"
+                }`}
+                aria-pressed={isActive}
+                onClick={() => props.onSelect(index)}
+              >
+                <div>
+                  <p class="text-base font-bold text-white">
+                    {channel.name.replace(/\s*(\([^)]*\)|\[[^\]]*\])\s*/g, "")}
+                  </p>
+                  <p class="text-[10px] font-semibold uppercase tracking-[0.4em] text-white/40">
+                    {channel.attributes["group-title"] ?? "General"}
+                  </p>
+                </div>
+                <div class="text-right">
+                  <p class="text-sm font-bold text-[#ccff33]">{origin.label}</p>
+                  <p class="text-[11px] font-semibold uppercase tracking-[0.4em] text-white/50">
+                    {origin.code}
+                  </p>
+                </div>
+              </button>
+            );
+          })}
+        <button
+          onClick={() => setChannelsCount((prev) => prev + 6)}
+          class="flex w-full justify-center items-center rounded-2xl text-white/50 hover:text-white/70 cursor-pointer border border-white/10 bg-black/30 hover:border-white/40 h-14"
+        >
+          Show More
+        </button>
       </div>
     </div>
   );
