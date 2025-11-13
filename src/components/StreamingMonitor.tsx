@@ -1,6 +1,7 @@
-import type { JSX } from "solid-js";
+import { onCleanup, onMount, type JSX } from "solid-js";
 import type { Channel } from "../data/parse-m3u";
 import type { ChannelOrigin } from "../data/streaming-grid";
+import Hls from "hls.js";
 
 interface MonitorMetric {
   label: string;
@@ -14,6 +15,28 @@ interface StreamingMonitorProps {
 }
 
 function StreamingMonitor(props: StreamingMonitorProps): JSX.Element {
+  let videoRef: HTMLVideoElement | undefined;
+
+  onMount(() => {
+    if (!videoRef) return;
+
+    const src = props.channel?.url;
+
+    if (Hls.isSupported()) {
+      const hls = new Hls();
+      hls.loadSource(src!);
+      hls.attachMedia(videoRef);
+      hls.on(Hls.Events.MANIFEST_PARSED, () => {
+        videoRef!.play();
+      });
+
+      onCleanup(() => hls.destroy());
+    } else if (videoRef.canPlayType("application/vnd.apple.mpegurl")) {
+      videoRef && videoRef.src === src;
+      videoRef.play();
+    }
+  });
+
   return (
     <div class="relative overflow-hidden rounded-3xl border border-white/10 bg-linear-to-br from-[#131313] via-[#080808] to-[#050505] p-8">
       <div class="absolute inset-y-0 right-0 w-64 bg-[radial-gradient(circle,_#ccff33_0%,_transparent_60%)] opacity-10 blur-3xl" />
@@ -54,6 +77,7 @@ function StreamingMonitor(props: StreamingMonitorProps): JSX.Element {
           <div class="mt-4 overflow-hidden rounded-2xl border border-white/5 bg-black/60">
             {props.channel?.url ? (
               <video
+                ref={videoRef}
                 class="aspect-video w-full bg-black object-cover"
                 controls
                 playsinline
