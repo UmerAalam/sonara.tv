@@ -16,10 +16,30 @@ function ChannelAtlas(props: ChannelAtlasProps): JSX.Element {
     const allChannels =
       typeof props.channels === "function" ? props.channels : props.channels;
     const term = searchTerm().toLowerCase();
-    if (!term) return allChannels;
-    return allChannels.filter((channel) =>
-      channel.name.toLowerCase().includes(term),
+
+    return allChannels.reduce<{ channel: Channel; index: number }[]>(
+      (filtered, channel, index) => {
+        if (!term || channel.name.toLowerCase().includes(term)) {
+          filtered.push({ channel, index });
+        }
+        return filtered;
+      },
+      [],
     );
+  });
+
+  const orderedChannels = createMemo(() => {
+    const list = channels();
+    if (list.length === 0) return list;
+
+    const activeIndex = list.findIndex(
+      ({ index }) => index === props.activeIndex,
+    );
+    if (activeIndex <= 0) return list;
+
+    const reordered = list.slice();
+    const [activeEntry] = reordered.splice(activeIndex, 1);
+    return [activeEntry, ...reordered];
   });
 
   const onSearch = (e: InputEvent) => {
@@ -52,11 +72,11 @@ function ChannelAtlas(props: ChannelAtlasProps): JSX.Element {
         </div>
       </div>
       <div class="space-y-3">
-        {channels()
+        {orderedChannels()
           .slice(0, channelsCount())
-          .map((channel, index) => {
+          .map(({ channel, index: channelIndex }) => {
             const origin = resolveCountry(channel);
-            const isActive = props.activeIndex === index;
+            const isActive = props.activeIndex === channelIndex;
             return (
               <button
                 type="button"
@@ -66,12 +86,17 @@ function ChannelAtlas(props: ChannelAtlasProps): JSX.Element {
                     : "border-white/10 bg-black/30 hover:border-white/40"
                 }`}
                 aria-pressed={isActive}
-                onClick={() => props.onSelect(index)}
+                onClick={() => props.onSelect(channelIndex)}
               >
                 <div>
-                  <p class="text-base font-bold text-white">
-                    {channel.name.replace(/\s*(\([^)]*\)|\[[^\]]*\])\s*/g, "")}
-                  </p>
+                  <div class="flex items-center gap-2">
+                    {isActive && (
+                      <span class="inline-block h-2.5 w-2.5 rounded-full bg-[#ccff33]"></span>
+                    )}
+                    <p class="text-base font-bold text-white">
+                      {channel.name.replace(/\s*(\([^)]*\)|\[[^\]]*\])\s*/g, "")}
+                    </p>
+                  </div>
                   <p class="text-[10px] font-semibold uppercase tracking-[0.4em] text-white/40">
                     {channel.attributes["group-title"] ?? "General"}
                   </p>
