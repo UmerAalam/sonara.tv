@@ -1,4 +1,4 @@
-import { onCleanup, onMount, type JSX } from "solid-js";
+import { createSignal, onCleanup, onMount, type JSX } from "solid-js";
 import type { Channel } from "../data/parse-m3u";
 import type { ChannelOrigin } from "../data/streaming-grid";
 import Hls from "hls.js";
@@ -16,6 +16,26 @@ interface StreamingMonitorProps {
 
 function StreamingMonitor(props: StreamingMonitorProps): JSX.Element {
   let videoRef: HTMLVideoElement | undefined;
+  let hls: Hls | undefined;
+
+  const [isPlaying, setIsPlaying] = createSignal(false);
+  const [currentTime, setCurrentTime] = createSignal(0);
+  const [duration, setDuration] = createSignal(0);
+  const [volume, setVolume] = createSignal(1);
+  const [isMuted, setIsMuted] = createSignal(false);
+
+  const formatTime = (seconds: number) => {
+    if (!Number.isFinite(seconds) || seconds <= 0) return "00:00";
+    const hrs = Math.floor(seconds / 3600);
+    const mins = Math.floor((seconds % 3600) / 60);
+    const secs = Math.floor(seconds % 60);
+    const parts = [
+      hrs > 0 ? String(hrs).padStart(2, "0") : undefined,
+      String(mins).padStart(2, "0"),
+      String(secs).padStart(2, "0"),
+    ].filter(Boolean);
+    return parts.join(":");
+  };
 
   onMount(() => {
     if (!videoRef) return;
@@ -23,19 +43,81 @@ function StreamingMonitor(props: StreamingMonitorProps): JSX.Element {
     const src = props.channel?.url;
 
     if (Hls.isSupported()) {
-      const hls = new Hls();
+      hls = new Hls();
       hls.loadSource(src!);
       hls.attachMedia(videoRef);
       hls.on(Hls.Events.MANIFEST_PARSED, () => {
         videoRef!.play();
       });
-
-      onCleanup(() => hls.destroy());
     } else if (videoRef.canPlayType("application/vnd.apple.mpegurl")) {
       videoRef && videoRef.src === src;
       videoRef.play();
     }
+
+    const syncPlayState = () => setIsPlaying(!videoRef!.paused);
+    const syncTime = () => setCurrentTime(videoRef!.currentTime);
+    const syncDuration = () => setDuration(videoRef!.duration || 0);
+    const syncVolume = () => {
+      setVolume(videoRef!.volume);
+      setIsMuted(videoRef!.muted);
+    };
+
+    videoRef.addEventListener("play", syncPlayState);
+    videoRef.addEventListener("pause", syncPlayState);
+    videoRef.addEventListener("timeupdate", syncTime);
+    videoRef.addEventListener("loadedmetadata", syncDuration);
+    videoRef.addEventListener("durationchange", syncDuration);
+    videoRef.addEventListener("volumechange", syncVolume);
+
+    syncPlayState();
+    syncTime();
+    syncDuration();
+    syncVolume();
+
+    onCleanup(() => {
+      videoRef?.removeEventListener("play", syncPlayState);
+      videoRef?.removeEventListener("pause", syncPlayState);
+      videoRef?.removeEventListener("timeupdate", syncTime);
+      videoRef?.removeEventListener("loadedmetadata", syncDuration);
+      videoRef?.removeEventListener("durationchange", syncDuration);
+      videoRef?.removeEventListener("volumechange", syncVolume);
+      hls?.destroy();
+    });
   });
+
+  const togglePlayback = () => {
+    if (!videoRef) return;
+    if (videoRef.paused) {
+      void videoRef.play();
+    } else {
+      videoRef.pause();
+    }
+  };
+
+  const handleSeek = (value: number) => {
+    if (!videoRef || !duration()) return;
+    const time = (value / 100) * duration();
+    videoRef.currentTime = time;
+    setCurrentTime(time);
+  };
+
+  const handleVolume = (value: number) => {
+    if (!videoRef) return;
+    const nextVolume = value / 100;
+    videoRef.volume = nextVolume;
+    videoRef.muted = nextVolume === 0;
+    setVolume(nextVolume);
+    setIsMuted(videoRef.muted);
+  };
+
+  const toggleMute = () => {
+    if (!videoRef) return;
+    videoRef.muted = !videoRef.muted;
+    setIsMuted(videoRef.muted);
+  };
+
+  const progressPercent =
+    duration() > 0 ? Math.min((currentTime() / duration()) * 100, 100) : 0;
 
   return (
     <div class="relative overflow-hidden rounded-3xl border border-white/10 bg-linear-to-br from-[#131313] via-[#080808] to-[#050505] p-8">
@@ -76,14 +158,77 @@ function StreamingMonitor(props: StreamingMonitorProps): JSX.Element {
           </div>
           <div class="mt-4 overflow-hidden rounded-2xl border border-white/5 bg-black/60">
             {props.channel?.url ? (
-              <video
-                ref={videoRef}
-                class="aspect-video w-full bg-black object-cover"
-                controls
-                playsinline
-                preload="none"
-                src={props.channel.url}
-              />
+              <div class="relative aspect-video w-full">
+                <video
+                  ref={videoRef}
+                  class="h-full w-full rounded-2xl bg-black object-cover"
+                  playsinline
+                  preload="none"
+                  src={props.channel.url}
+                />
+                <div class="pointer-events-none absolute inset-x-0 bottom-0 rounded-b-2xl bg-gradient-to-t from-black/85 via-black/30 to-transparent p-4">
+                  <div class="pointer-events-auto flex flex-col gap-3">
+                    <div class="flex items-center gap-3">
+                      <button
+                        class="flex h-10 w-10 items-center justify-center rounded-full border border-white/30 bg-white/10 text-white transition hover:border-[#ccff33] hover:text-[#ccff33]"
+                        onClick={togglePlayback}
+                      >
+                        {isPlaying() ? (
+                          <svg
+                            class="h-4 w-4"
+                            viewBox="0 0 16 16"
+                            fill="currentColor"
+                          >
+                            <path d="M5 3h2.5v10H5zm3.5 0H11v10H8.5z" />
+                          </svg>
+                        ) : (
+                          <svg
+                            class="h-4 w-4"
+                            viewBox="0 0 16 16"
+                            fill="currentColor"
+                          >
+                            <path d="M4 2l10 6-10 6z" />
+                          </svg>
+                        )}
+                      </button>
+                      <div class="flex flex-1 flex-col gap-1">
+                        <input
+                          class="h-1 w-full cursor-pointer appearance-none rounded-full bg-white/20 accent-[#ccff33]"
+                          type="range"
+                          min="0"
+                          max="100"
+                          value={progressPercent}
+                          onInput={(event) =>
+                            handleSeek(Number(event.currentTarget.value))
+                          }
+                        />
+                        <div class="flex items-center justify-between text-[11px] font-semibold tracking-wide text-white/80">
+                          <span>{formatTime(currentTime())}</span>
+                          <span>{formatTime(duration())}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.3em] text-white/70">
+                      <button
+                        class="flex items-center gap-2 rounded-full border border-white/20 px-3 py-1 text-[10px] tracking-[0.2em] transition hover:border-[#ccff33] hover:text-[#ccff33]"
+                        onClick={toggleMute}
+                      >
+                        {isMuted() || volume() === 0 ? "Muted" : "Sound"}
+                      </button>
+                      <input
+                        class="h-1 w-32 cursor-pointer appearance-none rounded-full bg-white/20 accent-[#ccff33]"
+                        type="range"
+                        min="0"
+                        max="100"
+                        value={Math.round(volume() * 100)}
+                        onInput={(event) =>
+                          handleVolume(Number(event.currentTarget.value))
+                        }
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
             ) : (
               <div class="flex aspect-video w-full items-center justify-center text-sm font-semibold text-white/50">
                 Select a feed to begin streaming preview.

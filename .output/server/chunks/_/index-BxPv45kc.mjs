@@ -98,7 +98,7 @@ function resolveCountry(channel) {
 function toTitleCase(value) {
   return value.replace(/\b\w/g, (char) => char.toUpperCase());
 }
-var _tmpl$$3 = ["<div", ' class="space-y-5 rounded-3xl border border-white/10 bg-[#0f0f0f]/80 p-6 backdrop-blur"><div class="flex flex-col gap-3"><p class="text-xs font-semibold uppercase tracking-[0.4em] text-white/50">Channel atlas</p></div><div class="flex items-center justify-between"><div class="flex w-full items-center gap-3 rounded-2xl border px-4 py-3 transition border-white/10 bg-black/30 hover:border-white/40"><input type="text" placeholder="Search channels..." class="w-full bg-transparent text-white placeholder-white/40 focus:outline-none"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white/60" fill="none" viewBox="0 0 24 24" stroke="currentColor"></svg></div></div><div class="space-y-3"><!--$-->', '<!--/--><button class="flex w-full justify-center items-center rounded-2xl text-white/50 hover:text-white/70 cursor-pointer border border-white/10 bg-black/30 hover:border-white/40 h-14">Show More</button></div></div>'], _tmpl$2$1 = ["<button", ' type="button" class="', '"', '><div><p class="text-base font-bold text-white">', '</p><p class="text-[10px] font-semibold uppercase tracking-[0.4em] text-white/40">', '</p></div><div class="text-right"><p class="text-sm font-bold text-[#ccff33]">', '</p><p class="text-[11px] font-semibold uppercase tracking-[0.4em] text-white/50">', "</p></div></button>"];
+var _tmpl$$3 = ["<div", ' class="space-y-5 rounded-3xl border border-white/10 bg-[#0f0f0f]/80 p-6 backdrop-blur"><div class="flex flex-col gap-3"><p class="text-xs font-semibold uppercase tracking-[0.4em] text-white/50">Channel atlas</p></div><div class="flex items-center justify-between"><div class="flex w-full items-center gap-3 rounded-2xl border px-4 py-3 transition border-white/10 bg-black/30 hover:border-white/40"><input type="text" placeholder="Search channels..." class="w-full bg-transparent text-white placeholder-white/40 focus:outline-none"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white/60" fill="none" viewBox="0 0 24 24" stroke="currentColor"></svg></div></div><div class="space-y-3"><!--$-->', '<!--/--><button class="flex w-full justify-center items-center rounded-2xl text-white/50 hover:text-white/70 cursor-pointer border border-white/10 bg-black/30 hover:border-white/40 h-14">Show More</button></div></div>'], _tmpl$2$1 = ["<button", ' type="button" class="', '"', '><div><div class="flex items-center gap-2"><!--$-->', '<!--/--><p class="text-base font-bold text-white">', '</p></div><p class="text-[10px] font-semibold uppercase tracking-[0.4em] text-white/40">', '</p></div><div class="text-right"><p class="text-sm font-bold text-[#ccff33]">', '</p><p class="text-[11px] font-semibold uppercase tracking-[0.4em] text-white/50">', "</p></div></button>"], _tmpl$3$1 = ["<span", ' class="inline-block h-2.5 w-2.5 rounded-full bg-[#ccff33]"></span>'];
 function ChannelAtlas(props) {
   const [searchTerm, setSearchTerm] = createSignal("");
   const [channelsCount, setChannelsCount] = createSignal(6);
@@ -115,21 +115,46 @@ function ChannelAtlas(props) {
       return filtered;
     }, []);
   });
-  return ssr(_tmpl$$3, ssrHydrationKey(), escape(channels().slice(0, channelsCount()).map(({
+  const orderedChannels = createMemo(() => {
+    const list = channels();
+    if (list.length === 0) return list;
+    const activeIndex = list.findIndex(({
+      index
+    }) => index === props.activeIndex);
+    if (activeIndex <= 0) return list;
+    const reordered = list.slice();
+    const [activeEntry] = reordered.splice(activeIndex, 1);
+    return [activeEntry, ...reordered];
+  });
+  return ssr(_tmpl$$3, ssrHydrationKey(), escape(orderedChannels().slice(0, channelsCount()).map(({
     channel,
     index: channelIndex
   }) => {
     const origin = resolveCountry(channel);
     const isActive = props.activeIndex === channelIndex;
-    return ssr(_tmpl$2$1, ssrHydrationKey(), `flex cursor-pointer w-full items-center justify-between gap-4 rounded-2xl border px-4 py-3 text-left transition ${isActive ? "border-[#ccff33]/80 bg-white/10" : "border-white/10 bg-black/30 hover:border-white/40"}`, ssrAttribute("aria-pressed", escape(isActive, true), false), escape(channel.name.replace(/\s*(\([^)]*\)|\[[^\]]*\])\s*/g, "")), escape(channel.attributes["group-title"]) ?? "General", escape(origin.label), escape(origin.code));
+    return ssr(_tmpl$2$1, ssrHydrationKey(), `flex cursor-pointer w-full items-center justify-between gap-4 rounded-2xl border px-4 py-3 text-left transition ${isActive ? "border-[#ccff33]/80 bg-white/10" : "border-white/10 bg-black/30 hover:border-white/40"}`, ssrAttribute("aria-pressed", escape(isActive, true), false), isActive && _tmpl$3$1[0] + ssrHydrationKey() + _tmpl$3$1[1], escape(channel.name.replace(/\s*(\([^)]*\)|\[[^\]]*\])\s*/g, "")), escape(channel.attributes["group-title"]) ?? "General", escape(origin.label), escape(origin.code));
   })));
 }
-var _tmpl$$2 = ["<div", ' class="relative overflow-hidden rounded-3xl border border-white/10 bg-linear-to-br from-[#131313] via-[#080808] to-[#050505] p-8"><div class="absolute inset-y-0 right-0 w-64 bg-[radial-gradient(circle,_#ccff33_0%,_transparent_60%)] opacity-10 blur-3xl"></div><div class="relative space-y-6"><div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between"><div><p class="text-xs font-semibold uppercase tracking-[0.4em] text-white/60">Live monitor</p><h3 class="text-3xl font-black tracking-tight text-white">Stream while exploring the grid</h3></div><span class="rounded-full border border-white/15 px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-white/70"><!--$-->', '<!--/--> signal</span></div><div class="rounded-2xl border border-white/10 bg-white/5 p-4"><div class="flex flex-wrap items-center justify-between gap-4"><div><p class="text-xs font-semibold uppercase tracking-[0.3em] text-white/60">Now playing</p><p class="text-2xl font-bold text-white">', '</p></div><div class="text-right"><p class="text-xs font-semibold uppercase tracking-[0.3em] text-white/50">Origin</p><p class="text-base font-bold text-[#ccff33]">', '</p></div></div><div class="mt-4 overflow-hidden rounded-2xl border border-white/5 bg-black/60">', '</div><div class="mt-4 grid gap-4 sm:grid-cols-3">', "</div></div></div></div>"], _tmpl$2 = ["<video", ' class="aspect-video w-full bg-black object-cover" controls playsinline preload="none"', "></video>"], _tmpl$3 = ["<div", ' class="flex aspect-video w-full items-center justify-center text-sm font-semibold text-white/50">Select a feed to begin streaming preview.</div>'], _tmpl$4 = ["<div", ' class="rounded-xl border border-white/10 bg-black/40 p-3"><p class="text-[10px] font-semibold uppercase tracking-[0.4em] text-white/40">', '</p><p class="mt-2 text-lg font-bold">', "</p></div>"];
+var _tmpl$$2 = ["<div", ' class="relative overflow-hidden rounded-3xl border border-white/10 bg-linear-to-br from-[#131313] via-[#080808] to-[#050505] p-8"><div class="absolute inset-y-0 right-0 w-64 bg-[radial-gradient(circle,_#ccff33_0%,_transparent_60%)] opacity-10 blur-3xl"></div><div class="relative space-y-6"><div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between"><div><p class="text-xs font-semibold uppercase tracking-[0.4em] text-white/60">Live monitor</p><h3 class="text-3xl font-black tracking-tight text-white">Stream while exploring the grid</h3></div><span class="rounded-full border border-white/15 px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-white/70"><!--$-->', '<!--/--> signal</span></div><div class="rounded-2xl border border-white/10 bg-white/5 p-4"><div class="flex flex-wrap items-center justify-between gap-4"><div><p class="text-xs font-semibold uppercase tracking-[0.3em] text-white/60">Now playing</p><p class="text-2xl font-bold text-white">', '</p></div><div class="text-right"><p class="text-xs font-semibold uppercase tracking-[0.3em] text-white/50">Origin</p><p class="text-base font-bold text-[#ccff33]">', '</p></div></div><div class="mt-4 overflow-hidden rounded-2xl border border-white/5 bg-black/60">', '</div><div class="mt-4 grid gap-4 sm:grid-cols-3">', "</div></div></div></div>"], _tmpl$2 = ["<div", ' class="relative aspect-video w-full"><video class="h-full w-full rounded-2xl bg-black object-cover" playsinline preload="none"', '></video><div class="pointer-events-none absolute inset-x-0 bottom-0 rounded-b-2xl bg-gradient-to-t from-black/85 via-black/30 to-transparent p-4"><div class="pointer-events-auto flex flex-col gap-3"><div class="flex items-center gap-3"><button class="flex h-10 w-10 items-center justify-center rounded-full border border-white/30 bg-white/10 text-white transition hover:border-[#ccff33] hover:text-[#ccff33]">', '</button><div class="flex flex-1 flex-col gap-1"><input class="h-1 w-full cursor-pointer appearance-none rounded-full bg-white/20 accent-[#ccff33]" type="range" min="0" max="100"', '><div class="flex items-center justify-between text-[11px] font-semibold tracking-wide text-white/80"><span>', "</span><span>", '</span></div></div></div><div class="flex flex-wrap items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.3em] text-white/70"><button class="flex items-center gap-2 rounded-full border border-white/20 px-3 py-1 text-[10px] tracking-[0.2em] transition hover:border-[#ccff33] hover:text-[#ccff33]">', '</button><input class="h-1 w-32 cursor-pointer appearance-none rounded-full bg-white/20 accent-[#ccff33]" type="range" min="0" max="100"', "></div></div></div></div>"], _tmpl$3 = ["<svg", ' class="h-4 w-4" viewBox="0 0 16 16" fill="currentColor"><path d="M5 3h2.5v10H5zm3.5 0H11v10H8.5z"></path></svg>'], _tmpl$4 = ["<svg", ' class="h-4 w-4" viewBox="0 0 16 16" fill="currentColor"><path d="M4 2l10 6-10 6z"></path></svg>'], _tmpl$5 = ["<div", ' class="flex aspect-video w-full items-center justify-center text-sm font-semibold text-white/50">Select a feed to begin streaming preview.</div>'], _tmpl$6 = ["<div", ' class="rounded-xl border border-white/10 bg-black/40 p-3"><p class="text-[10px] font-semibold uppercase tracking-[0.4em] text-white/40">', '</p><p class="mt-2 text-lg font-bold">', "</p></div>"];
 function StreamingMonitor(props) {
+  const [isPlaying, setIsPlaying] = createSignal(false);
+  const [currentTime, setCurrentTime] = createSignal(0);
+  const [duration, setDuration] = createSignal(0);
+  const [volume, setVolume] = createSignal(1);
+  const [isMuted, setIsMuted] = createSignal(false);
+  const formatTime = (seconds) => {
+    if (!Number.isFinite(seconds) || seconds <= 0) return "00:00";
+    const hrs = Math.floor(seconds / 3600);
+    const mins = Math.floor(seconds % 3600 / 60);
+    const secs = Math.floor(seconds % 60);
+    const parts = [hrs > 0 ? String(hrs).padStart(2, "0") : void 0, String(mins).padStart(2, "0"), String(secs).padStart(2, "0")].filter(Boolean);
+    return parts.join(":");
+  };
   onMount(() => {
     return;
   });
-  return ssr(_tmpl$$2, ssrHydrationKey(), escape(props.origin.code), escape(props.channel?.name) ?? "Select a channel", escape(props.origin.label), props.channel?.url ? ssr(_tmpl$2, ssrHydrationKey(), ssrAttribute("src", escape(props.channel.url, true), false)) : _tmpl$3[0] + ssrHydrationKey() + _tmpl$3[1], escape(props.metrics.map((metric) => ssr(_tmpl$4, ssrHydrationKey(), escape(metric.label), escape(metric.value)))));
+  const progressPercent = duration() > 0 ? Math.min(currentTime() / duration() * 100, 100) : 0;
+  return ssr(_tmpl$$2, ssrHydrationKey(), escape(props.origin.code), escape(props.channel?.name) ?? "Select a channel", escape(props.origin.label), props.channel?.url ? ssr(_tmpl$2, ssrHydrationKey(), ssrAttribute("src", escape(props.channel.url, true), false), isPlaying() ? _tmpl$3[0] + ssrHydrationKey() + _tmpl$3[1] : _tmpl$4[0] + ssrHydrationKey() + _tmpl$4[1], ssrAttribute("value", escape(progressPercent, true), false), escape(formatTime(currentTime())), escape(formatTime(duration())), isMuted() || volume() === 0 ? "Muted" : "Sound", ssrAttribute("value", escape(Math.round(volume() * 100), true), false)) : _tmpl$5[0] + ssrHydrationKey() + _tmpl$5[1], escape(props.metrics.map((metric) => ssr(_tmpl$6, ssrHydrationKey(), escape(metric.label), escape(metric.value)))));
 }
 var _tmpl$$1 = ["<footer", ' class="flex flex-col gap-4 border-t border-white/5 pt-8 text-sm font-semibold text-white/50 sm:flex-row sm:items-center sm:justify-between"><p>\xA9 <!--$-->', '<!--/--> SONARA.tv Engineered on TanStack + Solid.</p><div class="flex gap-4 text-xs uppercase tracking-[0.3em]"><button class="cursor-pointer text-white/60 hover:text-white">Status</button><button class="cursor-pointer text-white/60 hover:text-white">Support</button><button class="cursor-pointer text-white/60 hover:text-white">Download apps</button></div></footer>'];
 const Footer = () => {
@@ -160,4 +185,4 @@ function HomePage() {
 const SplitComponent = HomePage;
 
 export { SplitComponent as component };
-//# sourceMappingURL=index-iTC_Ca_H.mjs.map
+//# sourceMappingURL=index-BxPv45kc.mjs.map
