@@ -1,4 +1,7 @@
 import { createSignal, onCleanup, onMount, type JSX } from "solid-js";
+import MoveHorizontal from "lucide-solid/icons/move-horizontal";
+import Play from "lucide-solid/icons/play";
+import Pause from "lucide-solid/icons/pause";
 import type { Channel } from "../data/parse-m3u";
 import type { ChannelOrigin } from "../data/streaming-grid";
 import Hls from "hls.js";
@@ -209,16 +212,16 @@ function StreamingMonitor(props: StreamingMonitorProps): JSX.Element {
                   }}
                 />
                 <div
-                  class={`pointer-events-none absolute inset-0 rounded-2xl bg-gradient-to-t from-black/85 via-black/30 to-transparent p-4 transition-opacity duration-200 ${showControls() ? "opacity-100" : "opacity-0"}`}
+                  class={`pointer-events-none absolute inset-0 rounded-2xl bg-linear-to-t from-black/85 via-black/30 to-transparent p-4 transition-opacity duration-200 ${showControls() ? "opacity-100" : "opacity-0"}`}
                 >
                   <button
-                    class="pointer-events-auto absolute right-4 top-4 rounded-full border border-white/30 bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-white transition hover:border-[#ccff33] hover:text-[#ccff33]"
+                    class="size-10 pointer-events-auto backdrop-blur-2xl absolute right-4 top-4 rounded-full border border-white/30 bg-white/10 text-white transition hover:border-[#ccff33] hover:text-[#ccff33]"
                     onClick={(event) => {
                       event.stopPropagation();
                       toggleFullscreen();
                     }}
                   >
-                    ↔
+                    <MoveHorizontal class="size-4 mx-auto rotate-135" />
                   </button>
                   <div
                     class="pointer-events-auto flex h-full flex-col justify-end gap-3"
@@ -230,21 +233,9 @@ function StreamingMonitor(props: StreamingMonitorProps): JSX.Element {
                         onClick={togglePlayback}
                       >
                         {isPlaying() ? (
-                          <svg
-                            class="h-4 w-4"
-                            viewBox="0 0 16 16"
-                            fill="currentColor"
-                          >
-                            <path d="M5 3h2.5v10H5zm3.5 0H11v10H8.5z" />
-                          </svg>
+                          <Pause class="size-4" />
                         ) : (
-                          <svg
-                            class="h-4 w-4"
-                            viewBox="0 0 16 16"
-                            fill="currentColor"
-                          >
-                            <path d="M4 2l10 6-10 6z" />
-                          </svg>
+                          <Play class="size-4" />
                         )}
                       </button>
                       <div class="flex items-center gap-3 text-[10px] font-semibold uppercase tracking-[0.3em] text-white/70">
@@ -253,9 +244,9 @@ function StreamingMonitor(props: StreamingMonitorProps): JSX.Element {
                             class="rounded-full border border-white/20 px-3 py-1 transition hover:border-[#ccff33] hover:text-[#ccff33]"
                             onClick={toggleMute}
                           >
+                            {/* //Toggle Volume */}
                             {isMuted() || volume() === 0 ? "Muted" : "Sound"}
                           </button>
-                          <span class="text-[9px] tracking-[0.2em]">Vol</span>
                         </div>
                         <input
                           class="h-0.5 w-24 cursor-pointer appearance-none rounded-full bg-white/20 accent-[#ccff33]"
