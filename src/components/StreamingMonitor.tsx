@@ -1,6 +1,7 @@
 import { createSignal, onCleanup, onMount, type JSX } from "solid-js";
-import MoveDiagpnal from "lucide-solid/icons/move-diagonal";
+import MoveDiagonal from "lucide-solid/icons/move-diagonal";
 import VolumeOff from "lucide-solid/icons/volume-off";
+import Minimize2 from "lucide-solid/icons/minimize-2";
 import Volume2 from "lucide-solid/icons/volume-2";
 import Play from "lucide-solid/icons/play";
 import Pause from "lucide-solid/icons/pause";
@@ -223,7 +224,11 @@ function StreamingMonitor(props: StreamingMonitorProps): JSX.Element {
                       toggleFullscreen();
                     }}
                   >
-                    <MoveDiagpnal class="size-4 mx-auto" />
+                    {isFullscreen() ? (
+                      <Minimize2 class="size-4 mx-auto" />
+                    ) : (
+                      <MoveDiagonal class="size-4 mx-auto" />
+                    )}
                   </button>
                   <div
                     class="pointer-events-auto flex h-full flex-col justify-end gap-3"
