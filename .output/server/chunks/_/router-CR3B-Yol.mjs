@@ -1091,7 +1091,7 @@ const Scripts = () => {
   const allScripts = [...scripts().scripts, ...assetScripts()];
   return allScripts.map((asset, i) => createComponent(Asset, asset));
 };
-const styleCss = "/assets/styles-DzwrAQno.css";
+const styleCss = "/assets/styles-DHdBXJ9y.css";
 var _tmpl$ = ["<head><title>SONARA.tv</title>", "", "</head>"], _tmpl$2 = ["<html", ">", "<body><!--$-->", "<!--/--><!--$-->", "<!--/--></body></html>"];
 const Route$1 = createRootRouteWithContext()({
   head: () => ({
@@ -1113,7 +1113,7 @@ function RootComponent() {
     }
   })), escape(createComponent(Scripts, {})));
 }
-const $$splitComponentImporter = () => import('./index-BxPv45kc.mjs');
+const $$splitComponentImporter = () => import('./index-ZrKJLfoF.mjs');
 const Route2 = createFileRoute("/")({
   component: lazyRouteComponent($$splitComponentImporter, "component")
 });
@@ -1135,4 +1135,4 @@ const getRouter = () => {
 };
 
 export { getRouter };
-//# sourceMappingURL=router-fFmrM2bG.mjs.map
+//# sourceMappingURL=router-CR3B-Yol.mjs.map

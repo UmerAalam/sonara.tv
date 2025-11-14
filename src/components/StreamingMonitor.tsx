@@ -16,6 +16,7 @@ interface StreamingMonitorProps {
 
 function StreamingMonitor(props: StreamingMonitorProps): JSX.Element {
   let videoRef: HTMLVideoElement | undefined;
+  let containerRef: HTMLDivElement | undefined;
   let hls: Hls | undefined;
 
   const [isPlaying, setIsPlaying] = createSignal(false);
@@ -23,6 +24,8 @@ function StreamingMonitor(props: StreamingMonitorProps): JSX.Element {
   const [duration, setDuration] = createSignal(0);
   const [volume, setVolume] = createSignal(1);
   const [isMuted, setIsMuted] = createSignal(false);
+  const [showControls, setShowControls] = createSignal(true);
+  const [isFullscreen, setIsFullscreen] = createSignal(false);
 
   const formatTime = (seconds: number) => {
     if (!Number.isFinite(seconds) || seconds <= 0) return "00:00";
@@ -74,6 +77,26 @@ function StreamingMonitor(props: StreamingMonitorProps): JSX.Element {
     syncDuration();
     syncVolume();
 
+    const handleFullscreenChange = () => {
+      setIsFullscreen(document.fullscreenElement === containerRef);
+    };
+
+    const handleKeydown = (event: KeyboardEvent) => {
+      if (event.code === "Space") {
+        event.preventDefault();
+        togglePlayback();
+        return;
+      }
+      const key = event.key.toLowerCase();
+      if (key === "f" || event.key === "F11" || event.code === "F11") {
+        event.preventDefault();
+        toggleFullscreen();
+      }
+    };
+
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    window.addEventListener("keydown", handleKeydown);
+
     onCleanup(() => {
       videoRef?.removeEventListener("play", syncPlayState);
       videoRef?.removeEventListener("pause", syncPlayState);
@@ -81,6 +104,8 @@ function StreamingMonitor(props: StreamingMonitorProps): JSX.Element {
       videoRef?.removeEventListener("loadedmetadata", syncDuration);
       videoRef?.removeEventListener("durationchange", syncDuration);
       videoRef?.removeEventListener("volumechange", syncVolume);
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
+      window.removeEventListener("keydown", handleKeydown);
       hls?.destroy();
     });
   });
@@ -116,7 +141,16 @@ function StreamingMonitor(props: StreamingMonitorProps): JSX.Element {
     setIsMuted(videoRef.muted);
   };
 
-  const progressPercent =
+  const toggleFullscreen = async () => {
+    if (typeof document === "undefined") return;
+    if (document.fullscreenElement) {
+      await document.exitFullscreen();
+    } else if (containerRef?.requestFullscreen) {
+      await containerRef.requestFullscreen();
+    }
+  };
+
+  const progressPercent = () =>
     duration() > 0 ? Math.min((currentTime() / duration()) * 100, 100) : 0;
 
   return (
@@ -158,17 +192,39 @@ function StreamingMonitor(props: StreamingMonitorProps): JSX.Element {
           </div>
           <div class="mt-4 overflow-hidden rounded-2xl border border-white/5 bg-black/60">
             {props.channel?.url ? (
-              <div class="relative aspect-video w-full">
+              <div
+                class="relative aspect-video w-full"
+                ref={containerRef}
+                onClick={() => setShowControls((prev) => !prev)}
+              >
                 <video
                   ref={videoRef}
                   class="h-full w-full rounded-2xl bg-black object-cover"
                   playsinline
                   preload="none"
                   src={props.channel.url}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    setShowControls((prev) => !prev);
+                  }}
                 />
-                <div class="pointer-events-none absolute inset-x-0 bottom-0 rounded-b-2xl bg-gradient-to-t from-black/85 via-black/30 to-transparent p-4">
-                  <div class="pointer-events-auto flex flex-col gap-3">
-                    <div class="flex items-center gap-3">
+                <div
+                  class={`pointer-events-none absolute inset-0 rounded-2xl bg-gradient-to-t from-black/85 via-black/30 to-transparent p-4 transition-opacity duration-200 ${showControls() ? "opacity-100" : "opacity-0"}`}
+                >
+                  <button
+                    class="pointer-events-auto absolute right-4 top-4 rounded-full border border-white/30 bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-white transition hover:border-[#ccff33] hover:text-[#ccff33]"
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      toggleFullscreen();
+                    }}
+                  >
+                    ↔
+                  </button>
+                  <div
+                    class="pointer-events-auto flex h-full flex-col justify-end gap-3"
+                    onClick={(event) => event.stopPropagation()}
+                  >
+                    <div class="flex items-center justify-between gap-4">
                       <button
                         class="flex h-10 w-10 items-center justify-center rounded-full border border-white/30 bg-white/10 text-white transition hover:border-[#ccff33] hover:text-[#ccff33]"
                         onClick={togglePlayback}
@@ -191,40 +247,43 @@ function StreamingMonitor(props: StreamingMonitorProps): JSX.Element {
                           </svg>
                         )}
                       </button>
-                      <div class="flex flex-1 flex-col gap-1">
+                      <div class="flex items-center gap-3 text-[10px] font-semibold uppercase tracking-[0.3em] text-white/70">
+                        <div class="flex flex-col items-center gap-2">
+                          <button
+                            class="rounded-full border border-white/20 px-3 py-1 transition hover:border-[#ccff33] hover:text-[#ccff33]"
+                            onClick={toggleMute}
+                          >
+                            {isMuted() || volume() === 0 ? "Muted" : "Sound"}
+                          </button>
+                          <span class="text-[9px] tracking-[0.2em]">Vol</span>
+                        </div>
                         <input
-                          class="h-1 w-full cursor-pointer appearance-none rounded-full bg-white/20 accent-[#ccff33]"
+                          class="h-0.5 w-24 cursor-pointer appearance-none rounded-full bg-white/20 accent-[#ccff33]"
                           type="range"
                           min="0"
                           max="100"
-                          value={progressPercent}
+                          value={Math.round(volume() * 100)}
                           onInput={(event) =>
-                            handleSeek(Number(event.currentTarget.value))
+                            handleVolume(Number(event.currentTarget.value))
                           }
                         />
-                        <div class="flex items-center justify-between text-[11px] font-semibold tracking-wide text-white/80">
-                          <span>{formatTime(currentTime())}</span>
-                          <span>{formatTime(duration())}</span>
-                        </div>
                       </div>
                     </div>
-                    <div class="flex flex-wrap items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.3em] text-white/70">
-                      <button
-                        class="flex items-center gap-2 rounded-full border border-white/20 px-3 py-1 text-[10px] tracking-[0.2em] transition hover:border-[#ccff33] hover:text-[#ccff33]"
-                        onClick={toggleMute}
-                      >
-                        {isMuted() || volume() === 0 ? "Muted" : "Sound"}
-                      </button>
+                    <div class="flex flex-col gap-1">
                       <input
-                        class="h-1 w-32 cursor-pointer appearance-none rounded-full bg-white/20 accent-[#ccff33]"
+                        class="h-0.5 w-full cursor-pointer appearance-none rounded-full bg-white/25 accent-[#ccff33]"
                         type="range"
                         min="0"
                         max="100"
-                        value={Math.round(volume() * 100)}
+                        value={progressPercent()}
                         onInput={(event) =>
-                          handleVolume(Number(event.currentTarget.value))
+                          handleSeek(Number(event.currentTarget.value))
                         }
                       />
+                      <div class="flex items-center justify-between text-[11px] font-semibold tracking-wide text-white/80">
+                        <span>{formatTime(currentTime())}</span>
+                        <span>{formatTime(duration())}</span>
+                      </div>
                     </div>
                   </div>
                 </div>
