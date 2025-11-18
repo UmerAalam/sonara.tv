@@ -16,7 +16,6 @@ function ChannelAtlas(props: ChannelAtlasProps): JSX.Element {
     const allChannels =
       typeof props.channels === "function" ? props.channels : props.channels;
     const term = searchTerm().toLowerCase();
-
     return allChannels.reduce<{ channel: Channel; index: number }[]>(
       (filtered, channel, index) => {
         if (!term || channel.name.toLowerCase().includes(term)) {
@@ -94,7 +93,10 @@ function ChannelAtlas(props: ChannelAtlasProps): JSX.Element {
                       <span class="inline-block h-2.5 w-2.5 rounded-full bg-[#ccff33]"></span>
                     )}
                     <p class="text-base font-bold text-white">
-                      {channel.name.replace(/\s*(\([^)]*\)|\[[^\]]*\])\s*/g, "")}
+                      {channel.name.replace(
+                        /\s*(\([^)]*\)|\[[^\]]*\])\s*/g,
+                        "",
+                      )}
                     </p>
                   </div>
                   <p class="text-[10px] font-semibold uppercase tracking-[0.4em] text-white/40">
