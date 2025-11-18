@@ -34,7 +34,6 @@ export const monitorMetrics = [
 
 export function resolveCountry(channel?: Channel): ChannelOrigin {
   if (!channel) return { code: "INT", label: "International feed" };
-
   const attrCountry = channel.attributes["tvg-country"];
   if (attrCountry) {
     const normalized = attrCountry.toLowerCase();
@@ -46,7 +45,6 @@ export function resolveCountry(channel?: Channel): ChannelOrigin {
         : attrCountry.slice(0, 3).toUpperCase();
     return { code, label };
   }
-
   const tvgId = channel.attributes["tvg-id"] ?? "";
   const isoMatch = tvgId.match(/\.([a-z]{2,3})(?:@|$)/i);
   if (isoMatch) {
@@ -54,10 +52,8 @@ export function resolveCountry(channel?: Channel): ChannelOrigin {
     const label = COUNTRY_LABELS[normalized] ?? normalized.toUpperCase();
     return { code: normalized.toUpperCase(), label };
   }
-
   return { code: "INT", label: "International feed" };
 }
-
 function toTitleCase(value: string) {
   return value.replace(/\b\w/g, (char) => char.toUpperCase());
 }
