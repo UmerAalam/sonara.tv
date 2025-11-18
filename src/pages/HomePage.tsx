@@ -9,6 +9,7 @@ import {
 } from "../data/streaming-grid";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
+import CountryAtlas from "../components/CountryAtlas";
 
 function HomePage() {
   const channelList = curatedStreamingChannels;
@@ -20,9 +21,9 @@ function HomePage() {
 
   return (
     <main class="min-h-screen bg-[#202020] text-white antialiased">
-      <div class="mx-auto flex max-w-6xl flex-col gap-16 px-6 py-12 lg:py-16">
+      <div class="mx-auto flex w-full flex-col gap-16 px-6 py-12 lg:py-16">
         <Header />
-        <section class="grid gap-8 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,0.65fr)]">
+        <section class="grid gap-8 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,0.65fr)_minmax(0,0.65fr)]">
           <StreamingMonitor
             channel={activeChannel()}
             origin={playingOrigin()}
@@ -33,8 +34,8 @@ function HomePage() {
             activeIndex={activeChannelIndex()}
             onSelect={setActiveChannelIndex}
           />
+          <CountryAtlas />
         </section>
-
         <Footer />
       </div>
     </main>
