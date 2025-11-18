@@ -24,47 +24,47 @@ const CountryLabel: Record<string, string> = {
 
 export interface Country {
   label: string;
-  path: string;
+  channels: string;
 }
 export const countries: Country[] = [
   {
     label: CountryLabel.pk,
-    path: pk,
+    channels: pk,
   },
   {
     label: CountryLabel.uk,
-    path: uk,
+    channels: uk,
   },
   {
     label: CountryLabel.us,
-    path: us,
+    channels: us,
   },
   {
     label: CountryLabel.ae,
-    path: ae,
+    channels: ae,
   },
   {
     label: CountryLabel.ca,
-    path: ca,
+    channels: ca,
   },
   {
     label: CountryLabel.bd,
-    path: bd,
+    channels: bd,
   },
   {
     label: CountryLabel.in,
-    path: india,
+    channels: india,
   },
   {
     label: CountryLabel.sa,
-    path: sa,
+    channels: sa,
   },
   {
     label: CountryLabel.de,
-    path: de,
+    channels: de,
   },
   {
-    label: CountryLabel.de,
-    path: fr,
+    label: CountryLabel.fr,
+    channels: fr,
   },
 ];

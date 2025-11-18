@@ -18,7 +18,6 @@ function HomePage() {
     () => channelList[activeChannelIndex()] ?? channelList[0],
   );
   const playingOrigin = createMemo(() => resolveCountry(activeChannel()));
-
   return (
     <main class="min-h-screen bg-[#202020] text-white antialiased">
       <div class="mx-auto flex w-full flex-col gap-16 px-6 py-12 lg:py-16">
