@@ -82,6 +82,9 @@ const CountryAtlas = () => {
             );
           })}
       </div>
+      <button class="flex w-full justify-center items-center rounded-2xl text-white/50 hover:text-white/70 cursor-pointer border border-white/10 bg-black/30 hover:border-white/40 h-14">
+        Show More
+      </button>
     </div>
   );
 };
