@@ -1,4 +1,4 @@
-import { createMemo, createSignal, type JSX } from "solid-js";
+import { createEffect, createMemo, createSignal, type JSX } from "solid-js";
 import type { Channel } from "../data/parse-m3u";
 import { resolveCountry } from "../data/streaming-grid";
 
@@ -42,6 +42,20 @@ function ChannelAtlas(props: ChannelAtlasProps): JSX.Element {
     return [activeEntry, ...reordered];
   });
 
+  const visibleChannels = createMemo(() =>
+    orderedChannels().slice(0, channelsCount()),
+  );
+
+  const hasMoreChannels = createMemo(
+    () => orderedChannels().length > channelsCount(),
+  );
+
+  createEffect(() => {
+    // Reset pagination when the channel source changes.
+    props.channels;
+    setChannelsCount(6);
+  });
+
   const onSearch = (e: InputEvent) => {
     const value = (e.target as HTMLInputElement).value;
     setSearchTerm(value);
@@ -72,9 +86,7 @@ function ChannelAtlas(props: ChannelAtlasProps): JSX.Element {
         </div>
       </div>
       <div class="space-y-3">
-        {orderedChannels()
-          .slice(0, channelsCount())
-          .map(({ channel, index: channelIndex }) => {
+        {visibleChannels().map(({ channel, index: channelIndex }) => {
             const origin = resolveCountry(channel);
             const isActive = props.activeIndex === channelIndex;
             return (
@@ -110,12 +122,14 @@ function ChannelAtlas(props: ChannelAtlasProps): JSX.Element {
               </button>
             );
           })}
-        <button
-          onClick={() => setChannelsCount((prev) => prev + 6)}
-          class="flex w-full justify-center items-center rounded-2xl text-white/50 hover:text-white/70 cursor-pointer border border-white/10 bg-black/30 hover:border-white/40 h-14"
-        >
-          Show More
-        </button>
+        {hasMoreChannels() && (
+          <button
+            onClick={() => setChannelsCount((prev) => prev + 6)}
+            class="flex w-full justify-center items-center rounded-2xl text-white/50 hover:text-white/70 cursor-pointer border border-white/10 bg-black/30 hover:border-white/40 h-14"
+          >
+            Show More
+          </button>
+        )}
       </div>
     </div>
   );
