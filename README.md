@@ -1,4 +1,7 @@
-Welcome to your new TanStack app! 
+Welcome to your sonara.tv.An app powered by TanStack app! 
+
+<img width="1920" height="1200" alt="image" src="https://github.com/user-attachments/assets/8682bb6d-08b8-4565-8cd9-71af04d22e4a" />
+
 
 # Getting Started
 
