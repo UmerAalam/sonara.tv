@@ -11,7 +11,9 @@ export default defineConfig({
   assetsInclude: ["**/*.m3u"],
   plugins: [
     devtools(),
-    nitroV2Plugin(),
+    nitroV2Plugin({
+      preset: "netlify",
+    }),
     viteTsConfigPaths({
       projects: ["./tsconfig.json"],
     }),
